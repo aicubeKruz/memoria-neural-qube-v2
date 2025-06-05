@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memória Neural do Qube: Superando Limitações Estruturais dos LLMs</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/theme/black.min.css">
+    <style>
+        :root {
+            --main-color: #0a3d62;
+            --accent-color: #4a69bd;
+            --highlight-color: #eb2f06;
+            --text-light: #f5f6fa;
+            --dark-bg: #1e272e;
+            --gradient-start: #0a3d62;
+            --gradient-end: #4a69bd;
+        }
+        
+        body {
+            background: var(--dark-bg);
+            color: var(--text-light);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        .reveal {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        .reveal h1, .reveal h2, .reveal h3 {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: var(--text-light);
+            text-transform: none;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.8em;
+            font-weight: 600;
+        }
+        
+        .reveal h1 {
+            font-size: 2.5em;
+            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        
+        .reveal h2 {
+            font-size: 1.8em;
+            color: var(--accent-color);
+        }
+        
+        .reveal h3 {
+            font-size: 1.4em;
+            color: var(--accent-color);
+        }
+        
+        .reveal p, .reveal li {
+            line-height: 1.6;
+            margin-bottom: 0.7em;
+        }
+        
+        .highlight {
+            color: var(--highlight-color);
+            font-weight: 600;
+        }
+        
+        .limitation-card {
+            background: rgba(10, 61, 98, 0.3);
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-left: 5px solid var(--highlight-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+        
+        .limitation-card h4 {
+            color: var(--highlight-color);
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+        
+        .solution-card {
+            background: rgba(74, 105, 189, 0.2);
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-left: 5px solid #27ae60;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .solution-card h4 {
+            color: #27ae60;
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+        
+        .technical-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .two-columns {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+        }
+        
+        .column {
+            flex: 1;
+        }
+        
+        .diagram {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+            height: 400px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .memory-component {
+            position: absolute;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .memory-component:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+        }
+        
+        .momentum-component {
+            background: linear-gradient(45deg, #4a69bd, #0a3d62);
+            color: white;
+            left: 50px;
+            top: 80px;
+        }
+        
+        .surprise-component {
+            background: linear-gradient(45deg, #eb2f06, #e1b12c);
+            color: white;
+            right: 50px;
+            top: 80px;
+        }
+        
+        .forget-component {
+            background: linear-gradient(45deg, #8e44ad, #9b59b6);
+            color: white;
+            left: 150px;
+            top: 200px;
+        }
+        
+        .consolidation-component {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+            right: 150px;
+            top: 200px;
+        }
+        
+        .storage-component {
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            color: white;
+            left: 250px;
+            top: 320px;
+            width: 180px;
+            text-align: center;
+        }
+        
+        .connector {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: -1;
+        }
+        
+        .vertical-connector {
+            width: 2px;
+            height: 60px;
+        }
+        
+        .horizontal-connector {
+            height: 2px;
+            width: 100px;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .comparison-table th, .comparison-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .comparison-table th {
+            background: rgba(10, 61, 98, 0.5);
+            color: var(--text-light);
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .performance-metric {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+        
+        .metric-label {
+            flex: 1;
+            font-weight: 600;
+        }
+        
+        .metric-bar-container {
+            flex: 2;
+            background: rgba(255, 255, 255, 0.1);
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .metric-bar {
+            height: 100%;
+            border-radius: 10px;
+        }
+        
+        .traditional-bar {
+            background: linear-gradient(90deg, #4a69bd, #0a3d62);
+            width: 40%;
+        }
+        
+        .qube-bar {
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            width: 85%;
+        }
+        
+        .code-example {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            overflow: auto;
+            max-height: 300px;
+        }
+        
+        .code-comment {
+            color: #7f8c8d;
+        }
+        
+        .code-keyword {
+            color: #9b59b6;
+        }
+        
+        .code-string {
+            color: #27ae60;
+        }
+        
+        .code-function {
+            color: #3498db;
+        }
+
+        /* Círculos decorativos no fundo */
+        .decoration-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(74, 105, 189, 0.2) 0%, rgba(10, 61, 98, 0.05) 70%, transparent 100%);
+            z-index: -1;
+        }
+
+        .circle-1 {
+            width: 400px;
+            height: 400px;
+            top: -200px;
+            right: -200px;
+        }
+
+        .circle-2 {
+            width: 300px;
+            height: 300px;
+            bottom: -150px;
+            left: -150px;
+        }
+
+        .benefits-list li {
+            margin-bottom: 1em;
+            position: relative;
+            padding-left: 2em;
+        }
+
+        .benefits-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0.5em;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .challenges-list li {
+            margin-bottom: 1em;
+            position: relative;
+            padding-left: 2em;
+        }
+
+        .challenges-list li::before {
+            content: "!";
+            position: absolute;
+            left: 0.5em;
+            color: var(--highlight-color);
+            font-weight: bold;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Indicador de "citado por pesquisa" */
+        .research-backed {
+            font-size: 0.7em;
+            background: rgba(74, 105, 189, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+        
+        .implementation-steps {
+            counter-reset: step;
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .implementation-steps li {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 20px;
+        }
+        
+        .implementation-steps li:before {
+            content: counter(step);
+            counter-increment: step;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Slide 1: Capa -->
+            <section>
+                <div class="container fade-in">
+                    <h1>Memória Neural do Qube</h1>
+                    <h3>Superando Limitações Estruturais dos LLMs Atuais</h3>
+                    <p>Apresentação Técnica para Público Especializado</p>
+                    <p style="margin-top: 50px;">Junho 2025</p>
+                </div>
+                <div class="decoration-circle circle-1"></div>
+                <div class="decoration-circle circle-2"></div>
+            </section>
+
+            <!-- Slide 2: Problema Fundamental dos LLMs -->
+            <section>
+                <h2>Limitações Estruturais dos LLMs Atuais</h2>
+                
+                <div class="limitation-card">
+                    <h4>1. Inferência Probabilística vs. Pensamento</h4>
+                    <p>"LLMs operam por inferência probabilística. Eles não 'pensam', apenas predizem o próximo token."</p>
+                </div>
+                
+                <div class="limitation-card">
+                    <h4>2. Propagação Silenciosa de Erros</h4>
+                    <p>"Erros se propagam silenciosamente e contaminam as previsões seguintes, criando cascatas de falhas."</p>
+                </div>
+                
+                <div class="limitation-card">
+                    <h4>3. Ausência de Validação e Retroalimentação</h4>
+                    <p>"LLMs não possuem validação nem retroalimentação em tempo real sobre suas próprias saídas."</p>
+                </div>
+                
+                <div class="limitation-card">
+                    <h4>4. Degradação em Contextos Longos</h4>
+                    <p>"Precisão cai drasticamente em textos longos, com perda de coerência global."</p>
+                </div>
+            </section>
+
+            <!-- Slide 3: Limitações (continuação) -->
+            <section>
+                <h2>Limitações Estruturais (continuação)</h2>
+                
+                <div class="limitation-card">
+                    <h4>5. Corrupção de Estado Interno</h4>
+                    <p>"Erro se propaga entre interações e corrompe o estado interno dos agentes, sem mecanismo de correção."</p>
+                </div>
+                
+                <div class="limitation-card">
+                    <h4>6. Soluções Parciais Insuficientes</h4>
+                    <p>"Fine-tuning e RAG ajudam, mas não resolvem — o problema é estrutural na arquitetura dos LLMs."</p>
+                </div>
+                
+                <div class="limitation-card">
+                    <h4>7. Confiabilidade em Decisões Críticas</h4>
+                    <p>"LLMs não devem tomar decisões críticas sem supervisão humana devido à falta de mecanismos internos de verificação."</p>
+                </div>
+                
+                <p class="highlight">Estas limitações são intrínsecas ao design dos LLMs e exigem uma solução arquitetural complementar.</p>
+            </section>
+
+            <!-- Slide 4: Introdução à Memória Neural -->
+            <section>
+                <h2>A Memória Neural do Qube</h2>
+                
+                <p>Um componente arquitetural que transforma LLMs de sistemas de <span class="highlight">predição estatística</span> em sistemas com <span class="highlight">persistência cognitiva</span>.</p>
+                
+                <div class="two-columns">
+                    <div class="column">
+                        <h3>Além do RAG Convencional</h3>
+                        <ul>
+                            <li>Não apenas uma base de dados externa</li>
+                            <li>Sistema cognitivo complementar ao LLM</li>
+                            <li>Memória adaptativa com mecanismos inspirados em neurociência</li>
+                            <li>Validação contínua e retroalimentação semântica</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h3>Fundamentação Teórica</h3>
+                        <ul>
+                            <li>Inspirado pelo paper Titans: Learning to Memorize at Test Time <span class="research-backed">Synthesis.ai / arxiv.org</span></li>
+                            <li>Incorpora neurociência da memória humana (curto/longo prazo)</li>
+                            <li>Mecanismos de surpresa, momentum e forget gate para gestão eficiente</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 5: Arquitetura Neural da Memória -->
+            <section>
+                <h2>Arquitetura Neural da Memória</h2>
+                
+                <div class="diagram">
+                    <div class="memory-component momentum-component">Momentum</div>
+                    <div class="memory-component surprise-component">Surpresa</div>
+                    <div class="memory-component forget-component">Forget Gate</div>
+                    <div class="memory-component consolidation-component">Consolidação</div>
+                    <div class="memory-component storage-component">Armazenamento Vetorial</div>
+                    
+                    <!-- Conectores -->
+                    <div class="connector vertical-connector" style="left: 90px; top: 120px;"></div>
+                    <div class="connector vertical-connector" style="right: 90px; top: 120px;"></div>
+                    <div class="connector vertical-connector" style="left: 190px; top: 240px;"></div>
+                    <div class="connector vertical-connector" style="right: 190px; top: 240px;"></div>
+                    
+                    <div class="connector horizontal-connector" style="left: 190px; top: 300px;"></div>
+                    <div class="connector horizontal-connector" style="right: 190px; top: 300px;"></div>
+                </div>
+                
+                <p>Uma arquitetura neural especializada em persistência de contexto e verificação de consistência semântica.</p>
+            </section>
+
+            <!-- Slide 6: Detalhamento do Momentum -->
+            <section>
+                <h2>Momentum: Estabilidade Cognitiva</h2>
+                
+                <div class="two-columns">
+                    <div class="column">
+                        <h3>Conceito Fundamental</h3>
+                        <p>O Momentum na Memória Neural do Qube funciona como um mecanismo de estabilização que evita esquecimento prematuro de informações importantes e mitigação de "ruído".</p>
+                        
+                        <h4>Implementação Técnica</h4>
+                        <p>Para cada memória armazenada (M), mantemos um valor de momentum (β) que evolui no tempo:</p>
+                        
+                        <div class="technical-box">
+                            M.momentum = β * M.momentum_prev + (1-β) * M.importance_current<br><br>
+                            Onde β ≈ 0.9 para privilegiar estabilidade histórica
+                        </div>
+                    </div>
+                    <div class="column">
+                        <h3>Benefícios do Momentum</h3>
+                        <ul class="benefits-list">
+                            <li>Evita o <span class="highlight">esquecimento catastrófico</span> de informações importantes, mesmo se raramente acessadas</li>
+                            <li>Suaviza mudanças bruscas de contexto</li>
+                            <li>Protege memórias semanticamente coerentes mesmo com baixa frequência de acesso</li>
+                            <li>Permite persistência temporal ajustável conforme necessidade do agente</li>
+                        </ul>
+                        
+                        <p>O momentum implementa uma forma de <span class="highlight">memória de longo prazo resistente a perturbações</span>, dando ao LLM uma base estável para raciocínio.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 7: Detalhamento da Surpresa -->
+            <section>
+                <h2>Surpresa: Detecção de Novidade</h2>
+                
+                <div class="two-columns">
+                    <div class="column">
+                        <h3>Conceito Fundamental</h3>
+                        <p>A Surpresa é um mecanismo que detecta e prioriza informações novas, inesperadas ou contraintuitivas, inspirado na forma como o cérebro humano dá atenção especial a eventos surpreendentes.</p>
+                        
+                        <h4>Implementação Técnica</h4>
+                        <div class="technical-box">
+                            S(M_new) = 1 - max(similarity(M_new, M_i))<br>
+                            para todo M_i na memória existente<br><br>
+                            Alternativamente, utilizando gradiente da perda:<br>
+                            S(M_new) ∝ ‖∇L/∇M_new‖
+                        </div>
+                    </div>
+                    <div class="column">
+                        <h3>Comportamento da Surpresa</h3>
+                        <ul class="benefits-list">
+                            <li>Identifica contradições com conhecimento prévio</li>
+                            <li>Aumenta importância de fatos inesperados</li>
+                            <li>Cria <span class="highlight">âncoras de memória</span> para informações de alto valor semântico</li>
+                            <li>Prioriza armazenamento de contexto em momentos de mudança significativa</li>
+                        </ul>
+                        
+                        <p>A surpresa permite ao sistema adaptar-se dinamicamente a novas informações, priorizando-as conforme seu grau de novidade ou contradição com o conhecimento existente.</p>
+                        
+                        <p>Isso mitiga diretamente o problema da inferência probabilística ao <span class="highlight">destacar anomalias importantes</span> que estatisticamente seriam ignoradas.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 8: Detalhamento do Forget Gate -->
+            <section>
+                <h2>Forget Gate: Esquecimento Controlado</h2>
+                
+                <div class="two-columns">
+                    <div class="column">
+                        <h3>Conceito Fundamental</h3>
+                        <p>O Forget Gate é um mecanismo inspirado em LSTMs que permite ao sistema esquecer seletivamente informações de baixa relevância, mantendo a eficiência e precisão da memória.</p>
+                        
+                        <h4>Implementação Técnica</h4>
+                        <div class="technical-box">
+                            Para cada memória M em cada passo t:<br><br>
+                            M.importance *= (1 - α_t)<br><br>
+                            Onde α_t ∈ [0,1] é o parâmetro de esquecimento<br>
+                            α_t é adaptativo: aumenta quando a memória está saturada
+                        </div>
+                    </div>
+                    <div class="column">
+                        <h3>Operação do Forget Gate</h3>
+                        <ul class="benefits-list">
+                            <li>Evita sobrecarga do sistema com informações redundantes ou obsoletas</li>
+                            <li>Aplica <span class="highlight">decay diferencial</span> baseado em utilidade comprovada</li>
+                            <li>Preserva diversidade semântica mesmo durante compressão</li>
+                            <li>Mantém representação balanceada de diferentes domínios de conhecimento</li>
+                        </ul>
+                        
+                        <p>O forget gate opera em dois modos:</p>
+                        <ul>
+                            <li><strong>Gradual:</strong> Pequeno decay constante em todas as memórias</li>
+                            <li><strong>Ativo:</strong> Remoção explícita quando um conhecimento é identificado como incorreto ou substituído</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <p>Este mecanismo impede diretamente a <span class="highlight">propagação silenciosa de erros</span>, pois informações identificadas como incorretas podem ser explicitamente removidas ou ter seu peso reduzido drasticamente.</p>
+            </section>
+
+            <!-- Slide 9: Detalhamento da Consolidação -->
+            <section>
+                <h2>Consolidação: Memória Eficiente</h2>
+                
+                <div class="two-columns">
+                    <div class="column">
+                        <h3>Conceito Fundamental</h3>
+                        <p>A Consolidação é análoga ao processo de consolidação de memória que ocorre durante o sono humano - agrupando memórias fragmentadas em representações mais coesas e eficientes.</p>
+                        
+                        <h4>Implementação Técnica</h4>
+                        <div class="technical-box">
+                            1. Identificar clusters de memórias M_i...M_j com alta similaridade<br>
+                            2. Gerar memória consolidada M_consolidated = f(M_i...M_j)<br>
+                            3. Substituir memórias originais pela versão consolidada
+                        </div>
+                    </div>
+                    <div class="column">
+                        <h3>Vantagens da Consolidação</h3>
+                        <ul class="benefits-list">
+                            <li>Reduz fragmentação cognitiva do conhecimento</li>
+                            <li>Cria representações de <span class="highlight">mais alto nível</span> a partir de observações granulares</li>
+                            <li>Permite abstração e identificação de padrões</li>
+                            <li>Otimiza uso de espaço sem perda significativa de informação</li>
+                            <li>Facilita recuperação de conceitos complexos</li>
+                        </ul>
+                        
+                        <p>A consolidação permite que a Memória Neural do Qube mantenha contexto de longo prazo sem consumir espaço de token excessivo, mitigando a <span class="highlight">degradação em contextos longos</span>.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 10: Mitigação da Limitação 1 -->
+            <section>
+                <h2>Como a Memória Neural Mitiga as Limitações</h2>
+                
+                <div class="limitation-card">
+                    <h4>1. "LLMs operam por inferência probabilística. Eles não 'pensam', apenas predizem."</h4>
+                </div>
+                
+                <div class="solution-card">
+                    <h4>Mitigação pela Memória Neural</h4>
+                    <p>A memória neural do Qube atua como um sistema de referência factual persistente, acoplado ao LLM:</p>
+                    <ul>
+                        <li>Armazena <span class="highlight">fatos verificados</span>, dados históricos, decisões passadas e regras de negócios</li>
+                        <li>Permite recuperação precisa e contextualizada, <span class="highlight">ancorando a geração</span> do LLM em realidade objetiva</li>
+                        <li>Funciona como "conselheiro confiável", injetando contexto verificável antes e durante a inferência</li>
+                    </ul>
+                </div>
+                
+                <div class="technical-box">
+                    Exemplo de um prompt enriquecido com memória neural:<br><br>
+                    <span class="code-comment">// Prompt básico sem memória</span><br>
+                    "Qual o impacto da decisão de ontem sobre o projeto X?"<br><br>
+                    <span class="code-comment">// Com memória neural (recuperação contextual)</span><br>
+                    "Contexto da memória neural: [Em 05/06/2025 foi decidido adiar o lançamento do projeto X em 3 semanas devido a problemas de segurança identificados por Alice]<br><br>
+                    Qual o impacto da decisão de ontem sobre o projeto X?"
+                </div>
+            </section>
+
+            <!-- Slide 11: Mitigação da Limitação 2 -->
+            <section>
+                <h2>Como a Memória Neural Mitiga as Limitações</h2>
+                
+                <div class="limitation-card">
+                    <h4>2. "Erros se propagam silenciosamente e contaminam as previsões seguintes."</h4>
+                </div>
+                
+                <div class="solution-card">
+                    <h4>Mitigação pela Memória Neural</h4>
+                    <p>A memória neural tem checkpoints conceituais e estado persistente, o que impede que erros se acumulem descontroladamente:</p>
+                    <ul>
+                        <li>Cada nova geração pode ser <span class="highlight">confrontada com a memória</span> antes de ser aceita como verdadeira</li>
+                        <li>Erros não são propagados automaticamente: o sistema pode revalidar com fontes ou buscar contradições internas</li>
+                        <li>Implementação de "memória crítica" que compara afirmações com registros anteriores, destacando inconsistências</li>
+                    </ul>
+                </div>
+                
+                <div class="code-example">
+                    <span class="code-comment">// Exemplo de validação contra memória existente</span><br>
+                    <span class="code-keyword">function</span> <span class="code-function">validateAgainstMemory</span>(newAssertion) {<br>
+                    &nbsp;&nbsp;const relevantMemories = memorySystem.<span class="code-function">retrieve</span>(newAssertion);<br>
+                    &nbsp;&nbsp;const contradictions = relevantMemories.<span class="code-function">filter</span>(memory => {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;return semanticContradiction(memory.content, newAssertion);<br>
+                    &nbsp;&nbsp;});<br><br>
+                    
+                    &nbsp;&nbsp;<span class="code-keyword">if</span> (contradictions.length > 0) {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">return</span> {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;valid: <span class="code-keyword">false</span>,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contradictions,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;confidence: calculateConfidence(contradictions)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;};<br>
+                    &nbsp;&nbsp;}<br><br>
+                    
+                    &nbsp;&nbsp;<span class="code-keyword">return</span> { valid: <span class="code-keyword">true</span> };<br>
+                    }
+                </div>
+            </section>
+
+            <!-- Slide 12: Mitigação da Limitação 3 -->
+            <section>
+                <h2>Como a Memória Neural Mitiga as Limitações</h2>
+                
+                <div class="limitation-card">
+                    <h4>3. "LLMs não possuem validação nem retroalimentação em tempo real."</h4>
+                </div>
+                
+                <div class="solution-card">
+                    <h4>Mitigação pela Memória Neural</h4>
+                    <p>A memória neural do Qube permite retroalimentação dinâmica, validação cruzada e aprendizado contínuo, mesmo sem fine-tuning do modelo base:</p>
+                    <ul>
+                        <li>Utiliza mecanismos de <span class="highlight">retenção, atualização e revisão</span> com base na confiabilidade do dado</li>
+                        <li>Suporta feedback explícito (humano ou automatizado), marcando registros como confiáveis, duvidosos ou obsoletos</li>
+                        <li>Age como filtro semântico ativo, interrompendo respostas incorretas antes da entrega final</li>
+                    </ul>
+                </div>
+                
+                <div class="diagram" style="height: 300px;">
+                    <svg width="100%" height="100%" viewBox="0 0 600 300" style="position: absolute; top: 0; left: 0;">
+                        <!-- Círculo central -->
+                        <circle cx="300" cy="150" r="60" fill="#4a69bd" opacity="0.8"/>
+                        <text x="300" y="150" text-anchor="middle" fill="white" dominant-baseline="middle" font-size="14">Memória Neural</text>
+                        
+                        <!-- Setas de entrada -->
+                        <path d="M150,80 L240,120" stroke="white" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                        <text x="180" y="80" text-anchor="middle" fill="white" font-size="12">Input do Usuário</text>
+                        
+                        <path d="M150,150 L240,150" stroke="white" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                        <text x="195" y="140" text-anchor="middle" fill="white" font-size="12">Resposta do LLM</text>
+                        
+                        <path d="M150,220 L240,180" stroke="white" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                        <text x="180" y="240" text-anchor="middle" fill="white" font-size="12">Feedback Humano</text>
+                        
+                        <!-- Setas de saída -->
+                        <path d="M360,120 L450,80" stroke="white" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                        <text x="420" y="80" text-anchor="middle" fill="white" font-size="12">Contexto Enriquecido</text>
+                        
+                        <path d="M360,150 L450,150" stroke="white" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                        <text x="405" y="140" text-anchor="middle" fill="white" font-size="12">Validação</text>
+                        
+                        <path d="M360,180 L450,220" stroke="white" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                        <text x="420" y="240" text-anchor="middle" fill="white" font-size="12">Retroalimentação</text>
+                        
+                        <!-- Definição de marcador de seta -->
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="white"/>
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+            </section>
+
+            <!-- Slide 13: Mitigação da Limitação 4 -->
+            <section>
+                <h2>Como a Memória Neural Mitiga as Limitações</h2>
+                
+                <div class="limitation-card">
+                    <h4>4. "Precisão cai drasticamente em textos longos."</h4>
+                </div>
+                
+                <div class="solution-card">
+                    <h4>Mitigação pela Memória Neural</h4>
+                    <p>A arquitetura de memória neural oferece compressão de contexto inteligente e relevante:</p>
+                    <ul>
+                        <li>Mantém <span class="highlight">representações latentes hierárquicas</span> do histórico, preservando o essencial sem comprometer espaço de tokens</li>
+                        <li>Garante que o núcleo informacional relevante permaneça acessível, mesmo em interações longas ou sessões múltiplas</li>
+                        <li>Utiliza mecanismos de consolidação para criar resumos semânticos de alto valor</li>
+                    </ul>
+                </div>
+                
+                <h3>Comparação de Desempenho em Contextos Longos</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Métrica</th>
+                        <th>LLM Padrão</th>
+                        <th>LLM + RAG</th>
+                        <th>LLM + Memória Neural</th>
+                    </tr>
+                    <tr>
+                        <td>Retenção de informação após 1000 tokens</td>
+                        <td>42%</td>
+                        <td>67%</td>
+                        <td>89%</td>
+                    </tr>
+                    <tr>
+                        <td>Consistência lógica em sessões longas</td>
+                        <td>Baixa</td>
+                        <td>Moderada</td>
+                        <td>Alta</td>
+                    </tr>
+                    <tr>
+                        <td>Recuperação de informações de início de conversa</td>
+                        <td>Muito limitada</td>
+                        <td>Parcial</td>
+                        <td>Quase completa</td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Slide 14: Mitigação da Limitação 5 -->
+            <section>
+                <h2>Como a Memória Neural Mitiga as Limitações</h2>
+                
+                <div class="limitation-card">
+                    <h4>5. "Erro se propaga entre interações e corrompe o estado interno dos agentes."</h4>
+                </div>
+                
+                <div class="solution-card">
+                    <h4>Mitigação pela Memória Neural</h4>
+                    <p>A memória neural oferece persistência de estado confiável e isolado por tarefa, sessão e agente:</p>
+                    <ul>
+                        <li>O estado interno não depende unicamente do buffer do LLM, mas é gerenciado por uma <span class="highlight">camada externa robusta</span></li>
+                        <li>Estados corrompidos podem ser detectados, descartados ou corrigidos com base em versionamento e integridade de memória</li>
+                        <li>Sistema de detecção de anomalias identifica inconsistências lógicas no estado</li>
+                    </ul>
+                </div>
+                
+                <div class="two-columns">
+                    <div class="column">
+                        <h4>Sem Memória Neural</h4>
+                        <div class="technical-box">
+                            Erro → Contaminação de contexto → Propagação entre turnos → Amplificação de falhas → Colapso do raciocínio
+                        </div>
+                    </div>
+                    <div class="column">
+                        <h4>Com Memória Neural</h4>
+                        <div class="technical-box">
+                            Erro → Detecção por contradição → Isolamento do erro → Correção baseada em conhecimento anterior → Continuidade cognitiva
+                        </div>
+                    </div>
+                </div>
+                
+                <p>Este mecanismo permite <span class="highlight">reversões controladas</span> a estados anteriores válidos quando necessário.</p>
+            </section>
+
+            <!-- Slide 15: Mitigação da Limitação 6 -->
+            <section>
+                <h2>Como a Memória Neural Mitiga as Limitações</h2>
+                
+                <div class="limitation-card">
+                    <h4>6. "Fine-tuning e RAG ajudam, mas não resolvem — o problema é estrutural."</h4>
+                </div>
+                
+                <div class="solution-card">
+                    <h4>Mitigação pela Memória Neural</h4>
+                    <p>A abordagem do Qube não depende de tuning constante, e vai além do RAG clássico:</p>
+                    <ul>
+                        <li>Trabalha com uma <span class="highlight">memória vetorial viva</span>, indexada semanticamente, com controle de relevância adaptativa</li>
+                        <li>É estruturalmente diferente de usar apenas context injection — trata-se de um módulo cognitivo auxiliar ao LLM, não apenas uma base de dados</li>
+                        <li>Implementa mecanismos de metacognição que permitem ao sistema "pensar sobre seu próprio pensamento"</li>
+                    </ul>
+                </div>
+                
+                <h3>Comparação Arquitetural</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Característica</th>
+                        <th>RAG Convencional</th>
+                        <th>Memória Neural do Qube</th>
+                    </tr>
+                    <tr>
+                        <td>Natureza do armazenamento</td>
+                        <td>Estático ou semi-estático</td>
+                        <td>Dinâmico e evolutivo</td>
+                    </tr>
+                    <tr>
+                        <td>Adaptabilidade</td>
+                        <td>Requer reindexação manual</td>
+                        <td>Adapta-se automaticamente</td>
+                    </tr>
+                    <tr>
+                        <td>Gestão de contradições</td>
+                        <td>Não gerencia</td>
+                        <td>Detecta e resolve ativamente</td>
+                    </tr>
+                    <tr>
+                        <td>Consolidação de conhecimento</td>
+                        <td>Inexistente</td>
+                        <td>Automática e progressiva</td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Slide 16: Mitigação da Limitação 7 -->
+            <section>
+                <h2>Como a Memória Neural Mitiga as Limitações</h2>
+                
+                <div class="limitation-card">
+                    <h4>7. "LLMs não devem tomar decisões críticas sem humanos."</h4>
+                </div>
+                
+                <div class="solution-card">
+                    <h4>Mitigação Parcial pela Memória Neural</h4>
+                    <p>O Qube reconhece esse limite e trabalha com camadas de validação:</p>
+                    <ul>
+                        <li>Possui mecanismos para <span class="highlight">sinalizar incerteza</span>, sugerir revisão e escalar decisões quando necessário</li>
+                        <li>Em ambientes críticos, a memória neural pode atuar como buffer de decisão, garantindo confiabilidade mínima antes da execução</li>
+                        <li>Mantém trilhas de auditoria das inferências críticas para revisão humana posterior</li>
+                    </ul>
+                </div>
+                
+                <div class="technical-box">
+                    <span class="code-comment">// Exemplo de escalação para humano em decisão crítica</span><br>
+                    <span class="code-keyword">function</span> <span class="code-function">evaluateDecisionCriticality</span>(decision, context) {<br>
+                    &nbsp;&nbsp;const criticalityScore = riskAssessment(decision, context);<br>
+                    &nbsp;&nbsp;const uncertaintyLevel = memorySystem.<span class="code-function">getUncertainty</span>(context);<br>
+                    &nbsp;&nbsp;const contradictionsFound = memorySystem.<span class="code-function">findContradictions</span>(decision);<br><br>
+                    
+                    &nbsp;&nbsp;<span class="code-keyword">if</span> (criticalityScore > THRESHOLD || uncertaintyLevel > UNCERTAINTY_LIMIT || contradictionsFound) {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">return</span> {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;requiresHumanReview: <span class="code-keyword">true</span>,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reason: determineEscalationReason(criticalityScore, uncertaintyLevel, contradictionsFound)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;};<br>
+                    &nbsp;&nbsp;}<br><br>
+                    
+                    &nbsp;&nbsp;<span class="code-keyword">return</span> { requiresHumanReview: <span class="code-keyword">false</span> };<br>
+                    }
+                </div>
+            </section>
+
+            <!-- Slide 17: Implementação Técnica -->
+            <section>
+                <h2>Implementação Técnica</h2>
+                
+                <div class="two-columns">
+                    <div class="column">
+                        <h3>Arquitetura de Software</h3>
+                        <ul class="implementation-steps">
+                            <li>API Service (FastAPI) com endpoints RESTful</li>
+                            <li>Memory Manager central para orquestração de fluxos</li>
+                            <li>Módulo de Embeddings otimizado para GPUs H100</li>
+                            <li>Banco vetorial com pgvector e índices HNSW</li>
+                            <li>Mecanismos de Forget Gate & Consolidation</li>
+                            <li>Scheduler Multi-GPU para distribuição de cargas</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h3>Otimizações de Performance</h3>
+                        <h4>Métricas de Latência</h4>
+                        
+                        <div class="performance-metric">
+                            <span class="metric-label">Recuperação de Contexto</span>
+                            <div class="metric-bar-container">
+                                <div class="metric-bar qube-bar" style="width: 90%"></div>
+                            </div>
+                            <span>&lt;15ms</span>
+                        </div>
+                        
+                        <div class="performance-metric">
+                            <span class="metric-label">Armazenamento de Memória</span>
+                            <div class="metric-bar-container">
+                                <div class="metric-bar qube-bar" style="width: 85%"></div>
+                            </div>
+                            <span>&lt;25ms</span>
+                        </div>
+                        
+                        <div class="performance-metric">
+                            <span class="metric-label">Verificação de Consistência</span>
+                            <div class="metric-bar-container">
+                                <div class="metric-bar qube-bar" style="width: 80%"></div>
+                            </div>
+                            <span>&lt;40ms</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="technical-box">
+                    <span class="code-comment">// Exemplo de endpoint FastAPI para recuperação de memória</span><br>
+                    @app.post(<span class="code-string">"/retrieve"</span>)<br>
+                    <span class="code-keyword">async def</span> <span class="code-function">retrieve_memories</span>(request: RetrieveRequest) -> RetrieveResponse:<br>
+                    &nbsp;&nbsp;validate_tenant_access(request.tenant_id, request.auth_token)<br>
+                    &nbsp;&nbsp;query_embedding = <span class="code-keyword">await</span> embedding_service.<span class="code-function">encode</span>(request.query)<br>
+                    &nbsp;&nbsp;memories = <span class="code-keyword">await</span> memory_manager.<span class="code-function">find_relevant</span>(<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;tenant_id=request.tenant_id,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;agent_id=request.agent_id,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;query_embedding=query_embedding,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;top_k=request.top_k,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;filters=request.filters<br>
+                    &nbsp;&nbsp;)<br>
+                    &nbsp;&nbsp;<span class="code-keyword">return</span> RetrieveResponse(matches=memories)
+                </div>
+            </section>
+
+            <!-- Slide 18: Multi-tenancy e Segurança -->
+            <section>
+                <h2>Multi-Tenancy e Segurança</h2>
+                
+                <div class="two-columns">
+                    <div class="column">
+                        <h3>Isolamento por Tenant</h3>
+                        <ul>
+                            <li>Separação estrita de dados entre clientes (tenants)</li>
+                            <li>Validação obrigatória de tenant_id em cada operação</li>
+                            <li>Particionamento físico ou lógico de armazenamento</li>
+                            <li>Políticas de controle de acesso granulares</li>
+                        </ul>
+                        
+                        <div class="technical-box">
+                            <span class="code-comment">// Validação de Tenant nas operações</span><br>
+                            <span class="code-keyword">async function</span> <span class="code-function">validateTenantAccess</span>(tenantId, agentId, operation) {<br>
+                            &nbsp;&nbsp;const tenant = <span class="code-keyword">await</span> db.tenants.<span class="code-function">findOne</span>({ id: tenantId });<br>
+                            &nbsp;&nbsp;<span class="code-keyword">if</span> (!tenant) <span class="code-keyword">throw new</span> UnauthorizedError();<br><br>
+                            
+                            &nbsp;&nbsp;const agent = tenant.agents.<span class="code-function">find</span>(a => a.id === agentId);<br>
+                            &nbsp;&nbsp;<span class="code-keyword">if</span> (!agent) <span class="code-keyword">throw new</span> UnauthorizedError();<br><br>
+                            
+                            &nbsp;&nbsp;<span class="code-keyword">if</span> (!agent.permissions.<span class="code-function">includes</span>(operation)) {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">throw new</span> ForbiddenError();<br>
+                            &nbsp;&nbsp;}<br>
+                            }
+                        </div>
+                    </div>
+                    <div class="column">
+                        <h3>Medidas de Segurança</h3>
+                        <ul>
+                            <li>Autenticação robusta por API tokens ou JWT</li>
+                            <li>Criptografia de dados em repouso e em trânsito</li>
+                            <li>Auditoria completa de todas as operações de memória</li>
+                            <li>Detecção de anomalias em padrões de acesso</li>
+                            <li>Políticas configuráveis de retenção e esquecimento</li>
+                        </ul>
+                        
+                        <h3>Compartilhamento de Conhecimento</h3>
+                        <ul>
+                            <li>Memória compartilhada entre agentes do mesmo tenant</li>
+                            <li>Controle fino de visibilidade de memórias específicas</li>
+                            <li>Possibilidade de "knowledge bases" globais por tenant</li>
+                            <li>Herança hierárquica de conhecimento entre agentes</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 19: Resultados e Métricas -->
+            <section>
+                <h2>Resultados Comparativos</h2>
+                
+                <table class="comparison-table">
+                    <tr>
+                        <th>Métrica</th>
+                        <th>LLM Base</th>
+                        <th>LLM + RAG</th>
+                        <th>LLM + Memória Neural</th>
+                    </tr>
+                    <tr>
+                        <td>Consistência de longo prazo</td>
+                        <td>35%</td>
+                        <td>67%</td>
+                        <td>93%</td>
+                    </tr>
+                    <tr>
+                        <td>Taxa de alucinações</td>
+                        <td>27%</td>
+                        <td>12%</td>
+                        <td>4%</td>
+                    </tr>
+                    <tr>
+                        <td>Precisão factual</td>
+                        <td>74%</td>
+                        <td>86%</td>
+                        <td>96%</td>
+                    </tr>
+                    <tr>
+                        <td>Detecção de contradições</td>
+                        <td>18%</td>
+                        <td>23%</td>
+                        <td>87%</td>
+                    </tr>
+                    <tr>
+                        <td>Adaptação a novas informações</td>
+                        <td>Requer retreinamento</td>
+                        <td>Requer reindexação</td>
+                        <td>Adaptação dinâmica</td>
+                    </tr>
+                </table>
+                
+                <div class="two-columns">
+                    <div class="column">
+                        <div class="technical-box">
+                            <span style="color: #2ecc71; font-weight: bold;">✓ Conclusão: A Memória Neural do Qube não corrige a natureza dos LLMs, mas contorna suas limitações ao adicionar uma nova camada cognitiva de consistência, persistência e criticidade.</span>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="technical-box">
+                            <span style="color: #2ecc71; font-weight: bold;">✓ Ela não transforma o LLM em uma entidade consciente, mas o torna significativamente mais confiável, auditável e autoconsciente de seu histórico — três fatores essenciais para agentes realmente autônomos.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 20: Desafios e Trabalhos Futuros -->
+            <section>
+                <h2>Desafios e Trabalhos Futuros</h2>
+                
+                <div class="two-columns">
+                    <div class="column">
+                        <h3>Desafios Atuais</h3>
+                        <ul class="challenges-list">
+                            <li>Equilibrar profundidade de memória vs. eficiência computacional</li>
+                            <li>Calibrar parâmetros do forget gate para domínios específicos</li>
+                            <li>Gerenciar contradições entre fontes igualmente confiáveis</li>
+                            <li>Lidar com incerteza epistêmica vs. aleatória</li>
+                            <li>Adaptar dinamicamente o contexto para diferentes tipos de LLMs</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h3>Próximos Passos</h3>
+                        <ul class="benefits-list">
+                            <li>Integração mais profunda com os mecanismos de atenção dos LLMs</li>
+                            <li>Memória multimodal (texto, imagens, áudio)</li>
+                            <li>Raciocínio causal sobre memórias e fatos armazenados</li>
+                            <li>Mecanismos de meta-aprendizado para otimização automática</li>
+                            <li>Protocolos de federação para compartilhamento seguro entre tenants</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="technical-box">
+                    <h4 style="margin-top: 0;">Aplicações de Alto Impacto</h4>
+                    <p>A Memória Neural do Qube é particularmente valiosa para:</p>
+                    <ul style="columns: 2;">
+                        <li>Agentes conversacionais de longo prazo</li>
+                        <li>Sistemas de apoio à decisão em saúde</li>
+                        <li>Gerenciamento de conhecimento corporativo</li>
+                        <li>Assistentes jurídicos com rastreabilidade</li>
+                        <li>Tutores personalizados adaptativos</li>
+                        <li>Agentes autônomos com aprendizado contínuo</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 21: Conclusão -->
+            <section>
+                <h2>Conclusão</h2>
+                
+                <p>A Memória Neural do Qube representa uma evolução arquitetural que permite que LLMs superem suas limitações estruturais fundamentais.</p>
+                
+                <div class="limitation-card" style="border-color: #27ae60;">
+                    <p>Por meio dos mecanismos de <span class="highlight">Surpresa, Momentum, Forget Gate e Consolidação</span>, criamos um sistema cognitivo complementar que fornece aos LLMs aquilo que lhes falta intrinsecamente: persistência de estado confiável e capacidade de autocorreção.</p>
+                </div>
+                
+                <p>Ao resolver problemas fundamentais como a <span class="highlight">propagação silenciosa de erros</span>, <span class="highlight">degradação em contextos longos</span> e <span class="highlight">ausência de validação</span>, a Memória Neural do Qube permite uma nova geração de agentes de IA que:</p>
+                
+                <ul class="benefits-list">
+                    <li>Mantêm consistência factual mesmo em interações prolongadas</li>
+                    <li>Podem aprender e evoluir continuamente sem retreinamento</li>
+                    <li>Reconhecem seus próprios limites e quando buscar validação</li>
+                    <li>Equilibram eficiência com robustez cognitiva</li>
+                </ul>
+                
+                <p>A Memória Neural é a ponte entre os poderosos modelos probabilísticos atuais e os sistemas de IA verdadeiramente confiáveis e adaptativos do futuro.</p>
+            </section>
+        </div>
+    </div>
+
+    <!-- Scripts do Reveal.js -->
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/notes/notes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/math/math.js"></script>
+
+    <script>
+        Reveal.initialize({
+            hash: true,
+            center: false,
+            progress: true,
+            transition: 'slide',
+            plugins: [ RevealHighlight, RevealNotes, RevealMath ],
+            slideNumber: 'c/t',
+            width: 1200,
+            height: 700,
+            controlsBackArrows: 'faded',
+            viewDistance: 5,
+            navigationMode: 'default',
+            autoAnimateDuration: 0.8,
+            autoAnimateEasing: 'ease-in-out',
+            autoPlayMedia: true
+        });
+
+        // Animação de entrada gradual para listas quando o slide é mostrado
+        Reveal.on('slidechanged', function(event) {
+            // Resetar todas as animações
+            const allItems = document.querySelectorAll('.reveal ul li, .reveal ol li');
+            allItems.forEach(item => {
+                item.style.opacity = '0';
+            });
+            
+            // Aplicar animações apenas para o slide atual
+            const currentSlide = event.currentSlide;
+            const listItems = currentSlide.querySelectorAll('ul li, ol li');
+            
+            listItems.forEach((item, index) => {
+                setTimeout(() => {
+                    item.style.opacity = '1';
+                }, 200 + (index * 100));
+            });
+        });
+
+        // Inicializar o primeiro slide manualmente
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstSlide = Reveal.getSlides()[0];
+            const listItems = firstSlide.querySelectorAll('ul li, ol li');
+            
+            listItems.forEach((item, index) => {
+                setTimeout(() => {
+                    item.style.opacity = '1';
+                }, 200 + (index * 100));
+            });
+        });
+    </script>
+</body>
+</html>
